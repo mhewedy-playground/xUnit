@@ -1,3 +1,11 @@
+import traceback
+
+
+def listTestMethods(Class):
+    return filter(lambda x: not x.startswith("_")
+                            and x not in ("setup", "run", "tearDown"), dir(Class))
+
+
 class TestResult:
 
     def __init__(self):
@@ -26,7 +34,11 @@ class TestCase:
         self.setup()
         try:
             getattr(self, self.name)()
+        except AssertionError:
+            # print "Assertion Failed: %s.%s" % (self.__class__.__name__, self.name)
+            result.testFailed()
         except:
+            # traceback.print_exc()
             result.testFailed()
         self.tearDown()
 
@@ -40,8 +52,12 @@ class TestSuite(TestCase):
         self.tests = []
         TestCase.__init__(self, "TestSuite")
 
-    def add(self, testMethod):
-        self.tests.append(testMethod)
+    def add(self, textElement):
+        if hasattr(textElement, "name"):
+            self.tests.append(textElement)
+        else:
+            self.tests.extend(map(lambda x: globals()[textElement.__name__](x),
+                                  listTestMethods(textElement)))
 
     def run(self, result):
         for test in self.tests:
@@ -95,13 +111,18 @@ class TestCaseTest(TestCase):
         suite.run(self.result)
         assert ("2 run, 1 failed" == self.result.summary())
 
+    def testSuiteByClass(self):
+        suite = TestSuite()
+        suite.add(WasRun)
+        suite.run(self.result)
+        assert ("2 run, 1 failed" == self.result.summary())
+
+    def getAllMethodsExceptSetupAndTearDown(self):
+        assert (listTestMethods(WasRun) == ['testBrokenMethod', 'testMethod'])
+
 
 suite = TestSuite()
-suite.add(TestCaseTest("testTemplateMethod"))
-suite.add(TestCaseTest("testResult"))
-suite.add(TestCaseTest("testFailedResultFormatting"))
-suite.add(TestCaseTest("testFailedResult"))
-suite.add(TestCaseTest("testSuite"))
+suite.add(TestCaseTest)
 results = TestResult()
 suite.run(results)
 print results.summary()
