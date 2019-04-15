@@ -63,7 +63,7 @@ class TestCaseTest(TestCase):
         result = test.run()
         assert ("1 run, 0 failed" == result.summary())
 
-    def testFailedResults(self):
+    def testFailedResult(self):
         test = WasRun("testBrokenMethod")
         result = test.run()
         assert ("1 run, 1 failed" == result.summary())
@@ -75,7 +75,7 @@ class TestCaseTest(TestCase):
         assert (result.summary() == "1 run, 1 failed")
 
 
-TestCaseTest("testTemplateMethod").run()
-TestCaseTest("testResult").run()
-TestCaseTest("testFailedResults").run()
-TestCaseTest("testFailedResultFormatting").run()
+print TestCaseTest("testTemplateMethod").run().summary()
+print TestCaseTest("testResult").run().summary()
+print TestCaseTest("testFailedResult").run().summary()
+print TestCaseTest("testFailedResultFormatting").run().summary()
