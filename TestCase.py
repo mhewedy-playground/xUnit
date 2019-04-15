@@ -52,12 +52,12 @@ class TestSuite(TestCase):
         self.tests = []
         TestCase.__init__(self, "TestSuite")
 
-    def add(self, textElement):
-        if hasattr(textElement, "name"):
-            self.tests.append(textElement)
+    def add(self, methodObjOrClass):
+        if hasattr(methodObjOrClass, "name"):
+            self.tests.append(methodObjOrClass)
         else:
-            self.tests.extend(map(lambda x: globals()[textElement.__name__](x),
-                                  listTestMethods(textElement)))
+            self.tests.extend(map(lambda x: globals()[methodObjOrClass.__name__](x),
+                                  listTestMethods(methodObjOrClass)))
 
     def run(self, result):
         for test in self.tests:
