@@ -19,6 +19,7 @@ class TestCase:
     def tearDown(self):
         pass
 
+
 class TestResult:
 
     def __init__(self):
@@ -33,6 +34,7 @@ class TestResult:
 
     def summary(self):
         return "%d run, %d failed" % (self.runCount, self.failedCount)
+
 
 class WasRun(TestCase):
 
@@ -54,23 +56,23 @@ class TestCaseTest(TestCase):
     def testTemplateMethod(self):
         test = WasRun("testMethod")
         test.run()
-        assert(test.log == "setUp testMethod tearDown ")
+        assert (test.log == "setUp testMethod tearDown ")
 
     def testResult(self):
         test = WasRun("testMethod")
         result = test.run()
-        assert("1 run, 0 failed" == result.summary())
+        assert ("1 run, 0 failed" == result.summary())
 
     def testFailedResults(self):
         test = WasRun("testBrokenMethod")
         result = test.run()
-        assert("1 run, 1 failed" == result.summary())
+        assert ("1 run, 1 failed" == result.summary())
 
     def testFailedResultFormatting(self):
         result = TestResult()
         result.testStarted()
         result.testFailed()
-        assert(result.summary() == "1 run, 1 failed")
+        assert (result.summary() == "1 run, 1 failed")
 
 
 TestCaseTest("testTemplateMethod").run()
