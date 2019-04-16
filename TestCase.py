@@ -6,6 +6,11 @@ def list_test_methods(clazz):
                             and x not in ("setup", "run", "tear_down"), dir(clazz))
 
 
+def assert_equals(expected, actual):
+    if expected != actual:
+        raise AssertionError("%s is not equal to %s" % (expected, actual))
+
+
 class TestResult:
 
     def __init__(self):
@@ -81,11 +86,6 @@ class WasRun(TestCase):
 
     def tear_down(self):
         self.log = self.log + "tearDown "
-
-
-def assert_equals(expected, actual):
-    if expected != actual:
-        raise AssertionError("%s is not equal to %s" % (expected, actual))
 
 
 class TestCaseTest(TestCase):
