@@ -142,9 +142,31 @@ class TestCaseTest(TestCase):
         assert 1
 
 
+class Math:
+
+    def add(self, x, y):
+        return x + y
+
+    def multiply(self, x, y):
+        return x * y
+
+
+class TestMath(TestCase):
+
+    def test_add(self):
+        math = Math()
+        result = math.add(10, 20)
+        assert_equals(30, result)
+
+    def test_multiply(self):
+        math = Math()
+        result = math.multiply(10, 20)
+        assert_equals(200, result)
+
+
 if __name__ == '__main__':
     suite = TestSuite()
-    suite.add(TestCaseTest)
+    suite.add(TestMath)
     results = TestResult()
     suite.run(results)
     print results.summary()
