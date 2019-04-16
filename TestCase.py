@@ -142,8 +142,9 @@ class TestCaseTest(TestCase):
         assert 1
 
 
-suite = TestSuite()
-suite.add(TestCaseTest)
-results = TestResult()
-suite.run(results)
-print results.summary()
+if __name__ == '__main__':
+    suite = TestSuite()
+    suite.add(TestCaseTest)
+    results = TestResult()
+    suite.run(results)
+    print results.summary()
