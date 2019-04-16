@@ -166,6 +166,7 @@ class TestMath(TestCase):
 
 if __name__ == '__main__':
     suite = TestSuite()
+    suite.add(TestCaseTest)
     suite.add(TestMath)
     results = TestResult()
     suite.run(results)
