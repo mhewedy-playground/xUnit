@@ -53,7 +53,7 @@ class TestSuite(TestCase):
         TestCase.__init__(self, "TestSuite")
 
     def add(self, methodObjOrClass):
-        if hasattr(methodObjOrClass, "name"):
+        if self.__isMethodObject(methodObjOrClass):
             self.tests.append(methodObjOrClass)
         else:
             self.tests.extend(map(lambda x: globals()[methodObjOrClass.__name__](x),
@@ -62,6 +62,9 @@ class TestSuite(TestCase):
     def run(self, result):
         for test in self.tests:
             test.run(result)
+
+    def __isMethodObject(self, methodObj):
+        return hasattr(methodObj, "name")
 
 
 class WasRun(TestCase):
