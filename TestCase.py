@@ -38,7 +38,7 @@ class TestCase:
             # print "Assertion Failed: %s.%s" % (self.__class__.__name__, self.name)
             result.testFailed()
         except:
-            # traceback.print_exc()
+            print traceback.format_exc()
             result.testFailed()
         self.tearDown()
 
