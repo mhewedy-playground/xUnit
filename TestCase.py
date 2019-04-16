@@ -133,8 +133,9 @@ class TestCaseTest(TestCase):
         try:
             assert_equals(1, 3)
             assert None
-        except:
+        except AssertionError as ex:
             assert 1
+            assert ex.args[0] == "1 is not equal to 3"
 
     def test_assert_equals_2(self):
         assert_equals(3, 3)
