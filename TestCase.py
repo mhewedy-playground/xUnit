@@ -1,9 +1,9 @@
 import traceback
 
 
-def listTestMethods(Class):
+def list_test_methods(clazz):
     return filter(lambda x: not x.startswith("_")
-                            and x not in ("setup", "run", "tearDown"), dir(Class))
+                            and x not in ("setup", "run", "tear_down"), dir(clazz))
 
 
 class TestResult:
@@ -12,10 +12,10 @@ class TestResult:
         self.runCount = 0
         self.failedCount = 0
 
-    def testStarted(self):
+    def test_started(self):
         self.runCount = self.runCount + 1
 
-    def testFailed(self):
+    def test_failed(self):
         self.failedCount = self.failedCount + 1
 
     def summary(self):
@@ -30,19 +30,19 @@ class TestCase:
         pass
 
     def run(self, result):
-        result.testStarted()
+        result.test_started()
         self.setup()
         try:
             getattr(self, self.name)()
-        except AssertionError:
-            # print "Assertion Failed: %s.%s" % (self.__class__.__name__, self.name)
-            result.testFailed()
+        except AssertionError as ex:
+            print "Assertion Failed: '%s' in %s.%s" % (ex, self.__class__.__name__, self.name)
+            result.test_failed()
         except:
             print traceback.format_exc()
-            result.testFailed()
-        self.tearDown()
+            result.test_failed()
+        self.tear_down()
 
-    def tearDown(self):
+    def tear_down(self):
         pass
 
 
@@ -52,19 +52,20 @@ class TestSuite(TestCase):
         self.tests = []
         TestCase.__init__(self, "TestSuite")
 
-    def add(self, methodObjOrClass):
-        if self.__isMethodObject(methodObjOrClass):
-            self.tests.append(methodObjOrClass)
+    def add(self, method_obj_or_class):
+        if self.__is_method_object(method_obj_or_class):
+            self.tests.append(method_obj_or_class)
         else:
-            self.tests.extend(map(lambda x: globals()[methodObjOrClass.__name__](x),
-                                  listTestMethods(methodObjOrClass)))
+            self.tests.extend(map(lambda x: globals()[method_obj_or_class.__name__](x),
+                                  list_test_methods(method_obj_or_class)))
 
     def run(self, result):
         for test in self.tests:
             test.run(result)
 
-    def __isMethodObject(self, methodObj):
-        return hasattr(methodObj, "name")
+    @staticmethod
+    def __is_method_object(method_obj):
+        return hasattr(method_obj, "name")
 
 
 class WasRun(TestCase):
@@ -72,14 +73,19 @@ class WasRun(TestCase):
     def setup(self):
         self.log = "setUp "
 
-    def testMethod(self):
+    def test_method(self):
         self.log = self.log + "testMethod "
 
-    def testBrokenMethod(self):
+    def test_broken_method(self):
         raise Exception
 
-    def tearDown(self):
+    def tear_down(self):
         self.log = self.log + "tearDown "
+
+
+def assert_equals(expected, actual):
+    if expected != actual:
+        raise AssertionError("%s is not equal to %s" % (expected, actual))
 
 
 class TestCaseTest(TestCase):
@@ -87,41 +93,52 @@ class TestCaseTest(TestCase):
     def setup(self):
         self.result = TestResult()
 
-    def testTemplateMethod(self):
-        test = WasRun("testMethod")
+    def test_template_method(self):
+        test = WasRun("test_method")
         test.run(TestResult())
-        assert (test.log == "setUp testMethod tearDown ")
+        assert_equals("setUp testMethod tearDown ", test.log)
 
-    def testResult(self):
-        test = WasRun("testMethod")
+    def test_result(self):
+        test = WasRun("test_method")
         test.run(self.result)
-        assert ("1 run, 0 failed" == self.result.summary())
+        assert_equals("1 run, 0 failed", self.result.summary())
 
-    def testFailedResult(self):
-        test = WasRun("testBrokenMethod")
+    def test_failed_result(self):
+        test = WasRun("test_broken_method")
         test.run(self.result)
-        assert ("1 run, 1 failed" == self.result.summary())
+        assert_equals("1 run, 1 failed", self.result.summary())
 
-    def testFailedResultFormatting(self):
-        self.result.testStarted()
-        self.result.testFailed()
-        assert (self.result.summary() == "1 run, 1 failed")
+    def test_failed_result_formatting(self):
+        self.result.test_started()
+        self.result.test_failed()
+        assert_equals("1 run, 1 failed", self.result.summary())
 
-    def testSuite(self):
+    def test_suite(self):
         suite = TestSuite()
-        suite.add(WasRun("testMethod"))
-        suite.add(WasRun("testBrokenMethod"))
+        suite.add(WasRun("test_method"))
+        suite.add(WasRun("test_broken_method"))
         suite.run(self.result)
-        assert ("2 run, 1 failed" == self.result.summary())
+        assert_equals("2 run, 1 failed", self.result.summary())
 
-    def testSuiteByClass(self):
+    def test_suite_by_class(self):
         suite = TestSuite()
         suite.add(WasRun)
         suite.run(self.result)
-        assert ("2 run, 1 failed" == self.result.summary())
+        assert_equals("2 run, 1 failed", self.result.summary())
 
-    def getAllMethodsExceptSetupAndTearDown(self):
-        assert (listTestMethods(WasRun) == ['testBrokenMethod', 'testMethod'])
+    def test_get_all_methods_except_setup_and_tear_down(self):
+        assert_equals(['test_broken_method', 'test_method'], list_test_methods(WasRun))
+
+    def test_assert_equals(self):
+        try:
+            assert_equals(1, 3)
+            assert None
+        except:
+            assert 1
+
+    def test_assert_equals_2(self):
+        assert_equals(3, 3)
+        assert 1
 
 
 suite = TestSuite()
